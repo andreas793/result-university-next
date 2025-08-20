@@ -7,10 +7,10 @@ import {Button} from "@heroui/button";
 import {siteConfig} from "@/config/site.config";
 import {layoutConfig} from "@/config/layout.config";
 import RegistrationModal from "@/components/UI/modals/registration.modal";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import LoginModal from "@/components/UI/modals/login.modal";
 import {signOutFunc} from "@/actions/sign-out";
-import {useSession} from "next-auth/react";
+import {useAuthStore} from "@/store/auth.store";
 
 export const Logo = () => {
     return (<Image src="/vercel.svg"
@@ -23,9 +23,9 @@ export const Logo = () => {
 export default function Header() {
 
     const pathname = usePathname();
-    const {data: session, status} = useSession();
 
-    const isAuth = status === "authenticated";
+    const {isAuth, session, status, setAuthState} = useAuthStore();
+
 
     const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
     const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -35,16 +35,17 @@ export default function Header() {
             siteConfig.navItems.map(({href, label}) => {
                 const isActive = pathname === href;
                 return (<NavbarItem key={href}>
-                    <Link color="foreground"
-                          href={href}
-                          className={`px-3 py-1 
-                                    ${isActive ? "text-blue-500" : "text-foreground"}
-                                    hover:text-blue-300 hover:border
-                                    hover:border-blue-300 hover:rounded-md
-                                    transition-colors
-                                    transform-border
-                                    duration-200
-                                  `}>
+                    <Link
+                        color="foreground"
+                        href={href}
+                        className={`px-3 py-1 
+                            ${isActive ? "text-blue-500" : "text-foreground"}
+                            hover:text-blue-300 hover:border
+                            hover:border-blue-300 hover:rounded-md
+                            transition-colors
+                            transform-border
+                            duration-200`}
+                    >
                         {label}
                     </Link>
                 </NavbarItem>)
@@ -53,7 +54,12 @@ export default function Header() {
     }
 
     const handleSignOut = async () => {
-        await signOutFunc();
+        try {
+            await signOutFunc();
+        } catch (error) {
+            console.log(error);
+        }
+        setAuthState("unauthenticated", null);
     }
 
     return (
@@ -69,7 +75,7 @@ export default function Header() {
             </NavbarContent>
             <NavbarContent justify="end">
                 {isAuth && <p>Привет, {session?.user?.email}!</p>}
-                {!isAuth ? (
+                { status === "loading" ? <p>Загрузка...</p> : !isAuth ? (
                     <>
                         <NavbarItem className="hidden lg:flex">
                             <Button as={Link} color='secondary' href="#" variant='flat'
