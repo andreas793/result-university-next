@@ -3,7 +3,10 @@ import {NextRequest, NextResponse} from "next/server";
 
 export async function middleware(request: NextRequest){
     const { pathname } = request.nextUrl;
-    const token = await getToken({ req: request });
+    const token = await getToken({
+        req: request,
+        secret: process.env.AUTH_SECRET,
+    });
     const protectedRoutes = ["/ingredients"];
     if(protectedRoutes.some((route) => pathname.startsWith(route))){
         if(!token){
