@@ -1,7 +1,9 @@
+import IngredientForm from "@/forms/ingredient.form";
+
 const Ingredients = () => {
     return (
         <div>
-            <h1>Ingredients</h1>
+            <IngredientForm />
         </div>
     );
 };
