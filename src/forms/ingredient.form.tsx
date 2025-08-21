@@ -4,7 +4,7 @@ import { useState, useTransition} from "react";
 import {Form, Input, Select, SelectItem} from "@heroui/react";
 import {CATEGORY_OPTIONS, UNIT_OPTIONS} from "@/constans/select-options";
 import {Button} from "@heroui/button";
-import {createIngredient} from "@/actions/ingredient";
+import {useIngredientStore} from "@/store/ingredient.store";
 
 const initialState = {
     name: '',
@@ -18,14 +18,16 @@ const IngredientForm = () => {
     const [error, setError] = useState<string | null>(null);
     const [formData, setFormData] = useState(initialState);
     const [isPending, startTransition] = useTransition();
+    const {addIngredient} = useIngredientStore();
 
     const handleSubmit = async (formData: FormData) => {
         console.log("Form submitted", formData);
 
         startTransition( async () => {
-            const result = await createIngredient(formData);
-            if(result.error){
-                setError(result.error);
+            await addIngredient(formData);
+            const storeError = useIngredientStore.getState().error;
+            if(storeError){
+                setError(storeError);
             } else {
                 setError(null);
                 setFormData(initialState);
@@ -35,7 +37,7 @@ const IngredientForm = () => {
     }
 
     return (
-        <Form className="w-[400px]" action={handleSubmit}>
+        <Form className="w-full" action={handleSubmit}>
             <Input
                 isRequired
                 name="name"
