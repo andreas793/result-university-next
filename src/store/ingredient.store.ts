@@ -1,9 +1,9 @@
-import {Ingredient} from "@/types/ingredient";
+import {IIngredient} from "@/types/ingredient";
 import {create} from "zustand";
 import {createIngredient, deleteIngredient, getIngredients} from "@/actions/ingredient";
 
 interface IIngredientState {
-    ingredients: Ingredient[],
+    ingredients: IIngredient[],
     isLoading: boolean,
     error: string | null,
     loadIngredients: () => Promise<void>,
